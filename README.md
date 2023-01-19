@@ -53,6 +53,10 @@ rabbitmq:
     - "15672:15672"
 
 docker-compose up
+
+OR
+
+https://www.onlinetutorialspoint.com/windows/how-to-install-rabbitmq-on-windows-10.html
 ```
 
 ## rabbit Bean Messages

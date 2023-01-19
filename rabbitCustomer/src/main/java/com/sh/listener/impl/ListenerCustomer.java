@@ -1,5 +1,7 @@
 package com.sh.listener.impl;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import com.sh.events.publisher.EventsPublisher;
 import com.sh.listener.RabbitListener;
 import com.sh.messages.CustomerMsg;
 import com.sh.messages.ShopMsg;
+import com.sh.model.BodyInfo;
 import com.sh.model.RawMaterialWrapper;
 
 /**
@@ -59,8 +62,18 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 			
 			if (json.contains("1")) {
 					//see if we have the raw materials
-					//ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
-					ShopMsg msg = new ShopMsg("Gordon's Auto Workshop", "Initializing Materials..", 0);
+					ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
+					if (resp != null && resp.getBody() != null) {
+						List<BodyInfo> bodies = resp.getBody().getBodyInfos();
+						LOGGER.debug("*************************");
+						LOGGER.debug("Body Count: ", bodies.size());
+						for (int i=0; i<bodies.size(); i++) {
+							BodyInfo thisBody = bodies.get(i);
+							if (thisBody != null) {LOGGER.debug("--------------->Body: ", thisBody.toString());}
+						}
+						LOGGER.debug("*************************");
+					}
+					ShopMsg msg = new ShopMsg("Gordon's Auto Workshop1", "Initializing Materials..", 0);
 					producer.sendShopMsg(msg);
 					try {
 						Thread.sleep(3000);   //1000 milliseconds is one second.
@@ -74,7 +87,7 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 			else if (json.contains("2")) {
 				//see if we have the raw materials
 				//ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
-				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop", "Checking Materials..", 20);
+				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop2", "Checking Materials..", 20);
 				producer.sendShopMsg(msg);
 				try {
 					Thread.sleep(3000);   //1000 milliseconds is one second.
@@ -88,7 +101,7 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 			else if (json.contains("3")) {
 				//see if we have the raw materials
 				//ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
-				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop", "Applying Materials..", 10);
+				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop3", "Applying Materials..", 10);
 				producer.sendShopMsg(msg);
 				try {
 					Thread.sleep(3000);   //1000 milliseconds is one second.
@@ -102,7 +115,7 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 			else if (json.contains("4")) {
 				//see if we have the raw materials
 				//ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
-				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop", "Testing Materials..", 10);
+				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop4", "Testing Materials..", 10);
 				producer.sendShopMsg(msg);
 				try {
 					Thread.sleep(3000);   //1000 milliseconds is one second.
@@ -116,7 +129,7 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 			else if (json.contains("5")) {
 				//see if we have the raw materials
 				//ResponseEntity<RawMaterialWrapper> resp = restTemplate.exchange(rmmUrl+"/get", HttpMethod.GET, requestEntity, RawMaterialWrapper.class);
-				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop", "Materials Applied.", 10);
+				ShopMsg msg = new ShopMsg("Gordon's Auto Workshop5", "Materials Applied.", 10);
 				producer.sendShopMsg(msg);
 				try {
 					Thread.sleep(3000);   //1000 milliseconds is one second.

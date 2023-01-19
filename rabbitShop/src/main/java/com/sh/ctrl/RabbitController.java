@@ -85,7 +85,20 @@ public class RabbitController {
 	@RequestMapping(value="/sendMsgCustomer.rest",method=RequestMethod.POST)
 	public void sendMsgCustomer(@RequestBody CustomerMsg msg)
 	{
+		System.out.println("POST RECIEVED!");
+		System.out.println(msg.toString());
 		producer.sendCustomerMsg(msg);
+	}
+	
+	/**
+	 * POST Method for send a test message for shop
+	 */
+	@RequestMapping(value="/sendMsgShop.rest",method=RequestMethod.POST)
+	public void sendMsgShop(@RequestBody ShopMsg msg)
+	{
+		System.out.println("POST RECIEVED!");
+		System.out.println(msg.toString());
+		producer.sendShopMsg(msg);
 	}
 	
 	/**

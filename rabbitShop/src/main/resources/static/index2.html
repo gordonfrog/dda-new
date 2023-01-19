@@ -11,18 +11,7 @@
 </head>
 <body ng-app="rabbitReceptor">
 	<div class="container" ng-controller="receiverCtrl">
-		<div class="row">
-			<div  class="col-md-6">
-				<img alt="" src="img/banner.svg" class="img-responsive" style="vertical-align: top;">
-			</div>
-			<div class="col-md-6" style="padding-top: 10px;border: solid thin white; border-radius: 4px;>
-				<table class="table"> 
-					<form action="/">
-				        <input type="submit" name="clear">
-				    </form>
-				</table>
-			</div>
-		</div>
+		
 		<div class="row">
 			<div class="col-md-6" style="padding-top: 10px;border: solid thin white; border-radius: 4px;">
 				<p>Started Session at: {{sessionData.fmtSessionStart}}</p>
@@ -30,56 +19,41 @@
 				<p>Max Messages until backup: {{sessionData.maxMsg}}</p>
 				<p>Messages in backup: {{sessionData.backUp.length}}</p>
 			</div>
+			<div  class="col-md-6">
+				<img alt="" src="img/banner.svg" class="img-responsive" style="vertical-align: top;">
+			</div>
 		</div>
 		<div class="row" style="padding-top: 20px;">
 			<div class="col-md-6">
 				<i class="fa fa-bell fa-2x" ng-class="isAnimated ? 'animation-spin' : 'default-bell'" aria-hidden="true"></i><i ng-show="isAnimated">&nbsp;&nbsp;New Message Incoming!!!</i>
 			</div>
 		</div>
+		
 		<div class="row">
 			<div class="col-md-6">
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Customer name</th>
-							<th>Status</th>
-							<th>Description</th>
-							<th>Time Reception</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr ng-repeat="item in results" ng-class="isAnimated && $first ? 'animation-fadeout' : 'default-row'">
-						
-							<td ng-if="item.custName">{{item.custName}}</td>
-							<td ng-if="item.custName">{{item.custOccupation}}</td>
-							<td ng-if="item.custName">{{item.description}}</td>
-							<td ng-if="item.custName">{{item.timestamp}}</td>
-						
-						</tr>
-					</tbody>
-				</table>
-				<table class="table">
-					<thead>
-						<tr>
 							<th>Shop name</th>
-							<th>City</th>
-							<th>Sales</th>
+							<th>Status</th>
+							<th>Inventory</th>
 							<th>Time Reception</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr ng-repeat="item in results" ng-class="isAnimated && $first ? 'animation-fadeout' : 'default-row'">
-						
+						<div ng-if="item.shopName">
 							<td ng-if="item.shopName">{{item.shopName}}</td>
-							<td ng-if="item.shopName">{{item.custOccupation}}</td>
-							<td ng-if="item.shopName">{{item.description}}</td>
+							<td ng-if="item.shopName">{{item.city}}</td>
+							<td ng-if="item.shopName">{{item.sales}}</td>
 							<td ng-if="item.shopName">{{item.timestamp}}</td>
-						
+						</div>
 						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+		
 		
 	</div>
 	<script type="text/javascript" src="jslib/jquery.min.js"></script>
