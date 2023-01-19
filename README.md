@@ -61,12 +61,63 @@ https://www.onlinetutorialspoint.com/windows/how-to-install-rabbitmq-on-windows-
 
 ## rabbit Bean Messages
 
-This module have 2 POJO Beans,for customers and for shops.SpringBoot send and receive this type of objects.  
-Look shop bean:
+This module have 2 POJO Beans,for customers and for shops.  SpringBoot send and receive this type of objects.  
 
 ```java
 
-package com.sh.messages;
+public class CustomerMsg{
+	
+	private String custName;
+	private String custOccupation;
+	private String description;
+	private String type;
+	
+	public CustomerMsg() {
+		this.type = "CUSTOMER";
+	}
+	
+	public CustomerMsg(String custName, String custOccupation, String description) {
+		super();
+		this.custName = custName;
+		this.custOccupation = custOccupation;
+		this.description = description;
+		this.type = "CUSTOMER";
+	}
+
+	public String getCustName() {
+		return custName;
+	}
+	public void setCustName(String custName) {
+		this.custName = custName;
+	}
+	public String getCustOccupation() {
+		return custOccupation;
+	}
+	public void setCustOccupation(String custOccupation) {
+		this.custOccupation = custOccupation;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	@Override
+	public String toString() {
+		return "CustomerMsg [custName=" + custName + ", custOccupation=" + custOccupation + ", description="
+				+ description + ", type=" + type + "]";
+	}
+
+}
 
 public class ShopMsg {
 
@@ -109,12 +160,13 @@ public class ShopMsg {
 	}
 }
 ```
-## rabbit Publisher
+## rabbitShop (The rabbit Publisher)
 
-This module have the functionality of publish messages on rabbitMQ.  
-Also have REST controllers for publish messages with HTTP calls.
+This module has the functionality of publish messages onto rabbitMQ.  
+When the RabbitController is hit a message is sent via the MsgProducer onto rabbitMQ.
+The rabbitCustomer (The rabbit Reciever) receives this message.
 
-This is the module structure:
+Project structure:
 
 ```
 │   pom.xml
@@ -189,7 +241,7 @@ Last step is configure the rabbitTemplate:
 This configuration is in [AppRabbitPublisher.java](https://github.com/shoecillo/rabbitMQSpringBoot/blob/master/rabbitPublisher/src/main/java/com/sh/app/AppRabbitPublisher.java)
 
 
-Class MsgProducer is the component that publish in rabbit:
+Class MsgProducer is the component that publishes to rabbitMQ:
 
 ```java
 
@@ -218,16 +270,16 @@ Class MsgProducer is the component that publish in rabbit:
 
 ```
 
-The operation [rabbitCustomer.convertAndSend(msg)] convert msg in JSON and send to rabbitMQ configured queue.
+The operation [rabbitCustomer.convertAndSend(msg)] converts the msg into JSON and sends to rabbitMQ queue.
 
-The other class is a REST controller with little API for publish messages.
+The other class is a REST controller with an API for publishing messages.
 
-## rabbit Reader
+## rabbitShop (The rabbit Reader)
 
-This module have the functionality of listen messages from rabbitMQ and send event to a website with SSE.  
+This module has the functionality of listen for messages from rabbitMQ and send event to a website via SSE.  
 Create 2 listeners for 2 different queues but sharing topic exchange.
 
-This is the project structure:
+Project structure:
 
 ```
 │   pom.xml
@@ -293,8 +345,8 @@ This is the project structure:
 │   │                   underscore-min.js
 ```
 
-For configure the listeners we have to declare the same that in publisher:Queue,Topic exchange,bind and connectionFactory configured for rabbitMQ host.  
-Look listener configuration:
+To configure the listeners we have to declare the same that was done in publisher (Queue,Topic exchange,bind and connectionFactory configured for rabbitMQ host).  
+Listener configuration:
 
 ```java
         @Bean(name="containerCustomer")
@@ -318,10 +370,10 @@ Look listener configuration:
 	}
 ```
 
-It's easy to configure listeners,we need a container that configure destination,converter,connectionFactory and listener.
-we need a message listener adapter,where configure conversion and inject the class that implements the message reception operation, and we set which is the method listener,in my case is a constant.
+It's easy to configure listeners but we need a container that configures destination,converter,connectionFactory and listener.
+we need a message listener adapter,where we configure conversion and inject the class that implements the message reception operation, and finally we set which is the method listener,in my case a constant.
 
-Now look a interface that all my receivers must implements:
+Now look at the interface that all my receivers must implement:
 
 ```java
 
@@ -338,10 +390,10 @@ RabbitListener<CustomerMsg> assign message bean type,in this case CustomerMsg (i
 
 ## SSE with SpringBoot
 
-SSE or Server-Side-Event is a functionality for create a event listener in client side from server side.  
-Usually we send request to server and wait a response, in this case is reverse operation, we receive a request from server when event occurs,this event in our project is a rabbitMQ message reception.  
-For this purpose we have to use Spring ApplicationEvent events engine,when we read a rabbit message,send a event to controller.  
-Let's to see the reception message implementation for CustomerMsg Bean:  
+SSE (Server-Side-Event) is a functionality that creates an event listener in the client side to receive from the server side.  
+Usually we send request to server and wait a response, but in this case it's the opposite. We receive a request from server when an event occurs (this event in our project is a rabbitMQ message reception).  
+For this purpose we have to use Spring ApplicationEvent events engine - 1. read a rabbit message, 2. send event to controller.  
+Reception message implementation for CustomerMsg Bean:  
 
 ```java
 @Component
@@ -370,9 +422,9 @@ public class ListenerCustomer implements RabbitListener<CustomerMsg>{
 }
 ```
 
-EventsPublisher create an ApplicationEvent and publish a object,we get it via autowired, and we publish a object when receive a rabbitMQ message.Method receiveMessage is configured for listen customer messages.  
+EventsPublisher creates an ApplicationEvent and publishes an object when Listener receives the message off rabbitMQ.  (Method receiveMessage is configured to listen for customer messages.)  
 
-Go to see Controller:
+Controller that reacts to EventsPublisher's ApplicationEvent:
 
 ```java
 @Controller
@@ -416,9 +468,9 @@ public class StreamCtrl {
 }
 ```
 
-For listen ApplicationEvents have the @EventListener annotation, if not define parameters,listen all events,but we only want to listen a type of event,then we set the Bean that we want to receive.  
+The Controller listens for ApplicationEvents via the @EventListener annotation.  Since we only want to listen to certain events, we set the Beans that we want to receive (ShopEvent/CustomerEvent).  
 
-For send a SSE event, the client side have to declare a EventSource object and configure it:
+To receive the sent SSE event, the client side has to declare a EventSource object and configure it:
 
 ```javascript
 
@@ -446,14 +498,6 @@ EventSource open a connection with '/stream.action',server side,and wait for eve
 When declare this object the connection is opened, then in server side,controller '/stream.action' create a new SseEmitter and add it to list.
 When @EventListener receive a rabbit message, send the object via SseEmitter.send(),and parse the Bean into JSON,then we'll receive a JSON object in client side function 'onmessage'.
 
-I used AngularJS 1.6 for client side and create a little application for show in a table all the customer messages.
-
-Only with this steps we can write and read easily working with rabbitMQ.  
-Complete example have 2 queues for show how to configure multiple listeners and multiple writers.
-
 
 ***
 
-Thanks to :  
-[RabbitMQ](https://www.rabbitmq.com/)  
-[SpringBoot](https://projects.spring.io/spring-boot/)
